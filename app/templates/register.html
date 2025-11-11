@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - Plankton</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 2rem 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Image Container with Grid Overlay */
+        .bg-video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background-image: url("{{ url_for('static', filename='images/background.webp') }}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            filter: grayscale(100%) contrast(1.2);
+        }
+
+        /* Grid Pattern Overlay */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+
+        .auth-container {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 480px;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar */
+        .auth-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .auth-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .auth-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .auth-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-header h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        .auth-header p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0.5rem 0 0 0;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        .form-group .hint {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+        }
+
+        .form-group .hint.error {
+            color: #fca5a5;
+        }
+
+        .form-group .hint.success {
+            color: #86efac;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-register:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: rgba(255, 255, 255, 0.95);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            border-bottom-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .alerts {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-success {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .password-strength {
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            background-color: #ef4444;
+            transition: width 0.2s, background-color 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-video-container"></div>
+    <div class="bg-overlay"></div>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>PlankTON</h1>
+            <p>Kelompok Tani Maju Indonesia</p>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alerts">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="minimal 3 karakter" required>
+                <div class="hint" id="usernameHint"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="contoh@email.com" required>
+                <div class="hint" id="emailHint"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="minimal 6 karakter" required>
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="hint" id="passwordHint"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Konfirmasi Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="ulangi password" required>
+                <div class="hint" id="confirmHint"></div>
+            </div>
+
+            <button type="submit" class="btn-register" id="submitBtn">Daftar</button>
+        </form>
+
+        <div class="auth-footer">
+            Sudah punya akun? <a href="{{ url_for('auth.login') }}">Login di sini</a>
+        </div>
+    </div>
+
+    <script>
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirm_password');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Check username availability
+        usernameInput.addEventListener('blur', async function() {
+            const hint = document.getElementById('usernameHint');
+            const username = this.value.trim();
+            
+            if (!username) {
+                hint.innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ url_for("auth.check_username") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const data = await response.json();
+                hint.className = data.available ? 'hint success' : 'hint error';
+                hint.innerHTML = data.message;
+            } catch (error) {
+                console.error('Error checking username:', error);
+            }
+        });
+
+        // Check email availability
+        emailInput.addEventListener('blur', async function() {
+            const hint = document.getElementById('emailHint');
+            const email = this.value.trim();
+            
+            if (!email) {
+                hint.innerHTML = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ url_for("auth.check_email") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                hint.className = data.available ? 'hint success' : 'hint error';
+                hint.innerHTML = data.message;
+            } catch (error) {
+                console.error('Error checking email:', error);
+            }
+        });
+
+        // Password strength indicator
+        passwordInput.addEventListener('input', function() {
+            const strength = calculatePasswordStrength(this.value);
+            const bar = document.getElementById('strengthBar');
+            const hint = document.getElementById('passwordHint');
+            
+            bar.style.width = (strength * 25) + '%';
+            
+            if (this.value.length < 6) {
+                bar.style.backgroundColor = '#c33';
+                hint.className = 'hint error';
+                hint.innerHTML = '❌ Minimal 6 karakter';
+            } else if (strength < 2) {
+                bar.style.backgroundColor = '#f90';
+                hint.className = 'hint';
+                hint.innerHTML = '⚠️ Password lemah';
+            } else if (strength < 3) {
+                bar.style.backgroundColor = '#fc0';
+                hint.className = 'hint';
+                hint.innerHTML = '✓ Password cukup';
+            } else {
+                bar.style.backgroundColor = '#3c3';
+                hint.className = 'hint success';
+                hint.innerHTML = '✅ Password kuat';
+            }
+        });
+
+        // Confirm password match
+        confirmInput.addEventListener('input', function() {
+            const hint = document.getElementById('confirmHint');
+            if (this.value !== passwordInput.value) {
+                hint.className = 'hint error';
+                hint.innerHTML = '❌ Password tidak cocok';
+            } else if (this.value) {
+                hint.className = 'hint success';
+                hint.innerHTML = '✅ Password cocok';
+            } else {
+                hint.innerHTML = '';
+            }
+        });
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            return strength;
+        }
+
+        // Form validation on submit
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+            
+            if (password !== confirm) {
+                e.preventDefault();
+                alert('Password dan konfirmasi tidak cocok!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password minimal 6 karakter!');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

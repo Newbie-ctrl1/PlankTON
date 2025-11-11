@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat - Plankton</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PlankTON</h1>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item">Chat</a>
+                <a href="/history" class="nav-item active">Riwayat</a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>Asisten pertanian berbasis AI</p>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <p style="margin: 0 0 0.5rem 0; font-size: 0.85rem;">👤 {{ current_user.username }}</p>
+                    <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="history-container">
+                <!-- Header -->
+                <div class="history-header">
+                    <h2>Riwayat Chat</h2>
+                    <button id="clearHistoryBtn" class="btn-danger">Hapus Semua</button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="chat-history">Chat History</button>
+                    <button class="tab-btn" data-tab="plant-analysis">Analisis Tanaman</button>
+                </div>
+
+                <!-- Chat History Tab -->
+                <div id="chat-history" class="tab-content active">
+                    <div id="chatHistoryList" class="history-list">
+                        <p class="empty-state">Memuat riwayat chat...</p>
+                    </div>
+                </div>
+
+                <!-- Plant Analysis Tab -->
+                <div id="plant-analysis" class="tab-content">
+                    <div id="analysisHistoryList" class="history-list">
+                        <p class="empty-state">Memuat riwayat analisis...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>Hapus Riwayat?</h3>
+            <p>Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="modal-buttons">
+                <button id="confirmDeleteBtn" class="btn-danger">Hapus</button>
+                <button id="cancelDeleteBtn" class="btn-secondary">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/history.js') }}"></script>
+</body>
+</html>

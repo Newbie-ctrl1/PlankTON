@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plankton - Asisten Tanaman AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>PlankTON</h1>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/" class="nav-item active">Chat</a>
+                <a href="/history" class="nav-item">Riwayat</a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>Kelompok Tani Maju Indonesia</p>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <p style="margin: 0 0 0.5rem 0; font-size: 0.85rem;">👤 {{ current_user.username }}</p>
+                    <a href="{{ url_for('auth.logout') }}" class="btn-logout">Logout</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="chat-container">
+                <!-- Header -->
+                <div class="chat-header">
+                    <h2>Asisten Tanaman AI</h2>
+                </div>
+
+                <!-- Upload Area - Compact -->
+                <div class="upload-bar">
+                    <div class="upload-area-compact" id="uploadArea">
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                        <span>📸</span>
+                        <span id="uploadText">Upload foto tanaman</span>
+                    </div>
+                    <div id="analysisResultCompact" class="analysis-result-compact" style="display: none;">
+                        <img id="analysisImageCompact" src="" alt="Analisis">
+                        <div>
+                            <span id="plantNameCompact">-</span>
+                            <span id="confidenceCompact">-</span>%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages - Main Focus -->
+                <div class="messages-container" id="messagesContainer">
+                    <div class="message bot-message">
+                        <p>Halo! 👋 Saya adalah asisten tanaman AI Anda. Saya siap membantu menjawab pertanyaan tentang tanaman, budidaya, perawatan, dan masalah pertanian lainnya. Apa yang ingin Anda tanyakan hari ini?</p>
+                    </div>
+                </div>
+
+                <!-- Plant Topic Selector -->
+                <div class="topic-selector">
+                    <label for="plantTopic">Fokus topik:</label>
+                    <select id="plantTopic">
+                        <option value="tanaman umum">Tanaman Umum</option>
+                        <option value="sayuran">Sayuran</option>
+                        <option value="buah-buahan">Buah-buahan</option>
+                        <option value="tanaman hias">Tanaman Hias</option>
+                        <option value="herbal">Tanaman Herbal</option>
+                        <option value="padi dan serealia">Padi & Serealia</option>
+                    </select>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Tanyakan tentang tanaman..." 
+                        autocomplete="off"
+                    >
+                    <button id="sendBtn" class="send-btn">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.837654326,3.0486314 1.15159189,3.99021575 L3.03521743,10.4311088 C3.03521743,10.5882061 3.19218622,10.7453035 3.50612381,10.7453035 L16.6915026,11.5307905 C16.6915026,11.5307905 17.1624089,11.5307905 17.1624089,12.0020827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="loading" id="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Sedang berpikir...</p>
+                </div>
+
+                <!-- Hidden analysis display for modal -->
+                <div id="analysisResult" class="analysis-result" style="display: none;">
+                    <img id="analysisImage" src="" alt="Analisis tanaman">
+                    <div class="analysis-info">
+                        <p><strong id="plantName">-</strong></p>
+                        <p>Keyakinan: <span id="confidence">-</span>%</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
