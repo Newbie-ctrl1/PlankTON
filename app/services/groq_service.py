@@ -5,8 +5,8 @@ class GroqService:
         self.client = Groq(api_key=api_key)
         # List model yang tersedia (diurut dari yang paling recommended)
         self.models = [
-            "openai/gpt-oss-20b",
-            "llama-3.1-8b-instant",
+            "openai/gpt-oss-120b",
+            
         ]
         self.model = self.models[0]  # Default ke model pertama
     
@@ -42,7 +42,7 @@ Jika ada pertanyaan di luar topik tanaman, tetap coba bantu tetapi ingatkan foku
                     ],
                     model=model,
                     temperature=0.7,
-                    max_tokens=1024,
+                    max_tokens=2000,
                 )
                 
                 self.model = model  # Update model yang berhasil
