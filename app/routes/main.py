@@ -1,11 +1,18 @@
-from flask import Blueprint, render_template
-from flask_login import login_required
+from flask import Blueprint, render_template, redirect, url_for
+from flask_login import login_required, current_user
 
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
+def landing():
+    """Landing page - redirect to chat if already logged in"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.chat'))
+    return render_template('landing.html')
+
+@bp.route('/chat')
 @login_required
-def index():
+def chat():
     return render_template('index.html')
 
 @bp.route('/history')

@@ -249,17 +249,23 @@ def get_analysis_history():
             page=page, per_page=per_page
         )
         
+        data = []
+        for analysis in pagination.items:
+            analysis_dict = analysis.to_dict()
+            analysis_dict['image_url'] = f'/static/uploads/{analysis.image_filename}'
+            
+            # Get plant name translations
+            plant_translation = get_plant_translation(analysis.plant_name or '')
+            analysis_dict['plant_name_id'] = plant_translation.get('id', analysis.plant_name)
+            analysis_dict['plant_name_en'] = plant_translation.get('en', analysis.plant_name)
+            
+            data.append(analysis_dict)
+        
         return jsonify({
             'total': pagination.total,
             'pages': pagination.pages,
             'current_page': page,
-            'data': [
-                {
-                    **analysis.to_dict(),
-                    'image_url': f'/static/uploads/{analysis.image_filename}'
-                }
-                for analysis in pagination.items
-            ]
+            'data': data
         }), 200
     
     except Exception as e:

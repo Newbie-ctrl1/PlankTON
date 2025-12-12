@@ -105,17 +105,17 @@ class PlanktonHistory {
                 </div>
                 <div class="history-item-message">
                     <div class="message-label">👤 Anda</div>
-                    <div class="message-content" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%); border-left: 3px solid #10b981;">
+                    <div class="message-content">
                         ${this.escapeHtml(item.user_message)}
                     </div>
                 </div>
                 <div class="history-item-message">
                     <div class="message-label">🤖 Asisten AI</div>
-                    <div class="message-content" style="border-left: 3px solid #3b82f6;">
+                    <div class="message-content">
                         ${this.parseMarkdown(item.ai_response)}
                     </div>
                 </div>
-                <div style="margin-top: 0.75rem; padding: 0.5rem; background: #f0fdf4; border-radius: 0.375rem; font-size: 0.8rem; color: #15803d;">
+                <div style="margin-top: 0.75rem; padding: 0.5rem; background: #f5f5f5; border: 1px solid #000; border-radius: 0.375rem; font-size: 0.8rem; color: #000;">
                     📌 Topik: <strong>${item.plant_topic || 'Umum'}</strong>
                 </div>
             </div>
@@ -140,51 +140,52 @@ class PlanktonHistory {
                 // Health status
                 if (result.health && result.health.is_healthy) {
                     const status = result.health.is_healthy.status ? '✅ Sehat' : '⚠️ Ada masalah';
-                    analysisContent += `<div style="margin: 0.5rem 0; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981; border-radius: 0.25rem; color: #000;">
-                        <strong>Status Kesehatan:</strong> ${status}
+                    analysisContent += `<div class="history-item-message">
+                        <div class="message-label">Status Kesehatan</div>
+                        <div class="message-content">${status}</div>
                     </div>`;
                 }
                 
                 // Diseases
                 if (result.health && result.health.diseases && result.health.diseases.suggestions.length > 0) {
-                    analysisContent += '<div style="margin: 0.75rem 0; color: #000;"><strong>🦠 Penyakit Terdeteksi:</strong>';
-                    result.health.diseases.suggestions.forEach(disease => {
-                        analysisContent += `<div style="margin-left: 1rem; margin-top: 0.25rem; color: #000;">
-                            • ${disease.name} (${(disease.probability * 100).toFixed(1)}%)
-                        </div>`;
-                    });
-                    analysisContent += '</div>';
+                    let diseaseList = result.health.diseases.suggestions.map(disease => 
+                        `• ${disease.name} (${(disease.probability * 100).toFixed(1)}%)`
+                    ).join('<br>');
+                    analysisContent += `<div class="history-item-message">
+                        <div class="message-label">🦠 Penyakit Terdeteksi</div>
+                        <div class="message-content">${diseaseList}</div>
+                    </div>`;
                 }
                 
                 // Pests
                 if (result.health && result.health.pests && result.health.pests.suggestions.length > 0) {
-                    analysisContent += '<div style="margin: 0.75rem 0;"><strong>🐛 Hama Terdeteksi:</strong>';
-                    result.health.pests.suggestions.forEach(pest => {
-                        analysisContent += `<div style="margin-left: 1rem; margin-top: 0.25rem;">
-                            • ${pest.name} (${(pest.probability * 100).toFixed(1)}%)
-                        </div>`;
-                    });
-                    analysisContent += '</div>';
+                    let pestList = result.health.pests.suggestions.map(pest => 
+                        `• ${pest.name} (${(pest.probability * 100).toFixed(1)}%)`
+                    ).join('<br>');
+                    analysisContent += `<div class="history-item-message">
+                        <div class="message-label">🐛 Hama Terdeteksi</div>
+                        <div class="message-content">${pestList}</div>
+                    </div>`;
                 }
                 
                 // Nutrient deficiency
                 if (result.health && result.health.nutrient_deficiency && result.health.nutrient_deficiency.suggestions.length > 0) {
-                    analysisContent += '<div style="margin: 0.75rem 0;"><strong>📊 Defisiensi Nutrisi:</strong>';
-                    result.health.nutrient_deficiency.suggestions.forEach(def => {
-                        analysisContent += `<div style="margin-left: 1rem; margin-top: 0.25rem;">
-                            • ${def.nutrient} (${(def.probability * 100).toFixed(1)}%)
-                        </div>`;
-                    });
-                    analysisContent += '</div>';
+                    let defList = result.health.nutrient_deficiency.suggestions.map(def => 
+                        `• ${def.nutrient} (${(def.probability * 100).toFixed(1)}%)`
+                    ).join('<br>');
+                    analysisContent += `<div class="history-item-message">
+                        <div class="message-label">📊 Defisiensi Nutrisi</div>
+                        <div class="message-content">${defList}</div>
+                    </div>`;
                 }
             }
             
             // AI Recommendations
             let recommendationsContent = '';
             if (item.ai_recommendations) {
-                recommendationsContent = `<div style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); border-left: 4px solid #667eea; border-radius: 0.5rem;">
-                    <div style="margin-bottom: 0.5rem; font-size: 1.05em; font-weight: 600; color: #667eea;">💡 Rekomendasi Penanganan:</div>
-                    <div style="color: #fff; line-height: 1.6;">
+                recommendationsContent = `<div class="history-item-message">
+                    <div class="message-label">💡 Rekomendasi Penanganan</div>
+                    <div class="message-content">
                         ${this.parseMarkdown(item.ai_recommendations)}
                     </div>
                 </div>`;
@@ -196,30 +197,26 @@ class PlanktonHistory {
                         <span class="history-item-time">${new Date(item.created_at).toLocaleString('id-ID')}</span>
                         <button class="history-item-delete" onclick="deleteAnalysisItem(${item.id})">🗑️</button>
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                        <img src="${item.image_url}" alt="Analysis" style="width: 120px; height: 120px; object-fit: cover; border-radius: 0.5rem; border: 2px solid #e2e8f0;">
-                        <div style="flex: 1;">
+                    <div style="display: flex; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
+                        <img src="${item.image_url}" alt="Analysis" style="width: 120px; height: 120px; object-fit: cover; border-radius: 0.5rem; border: 2px solid #000;">
+                        <div style="flex: 1; min-width: 200px;">
                             <div class="history-item-message">
-                                <div class="message-label">Tanaman Terdeteksi</div>
+                                <div class="message-label">🌱 Tanaman Terdeteksi</div>
                                 <div class="message-content">
-                                    <div><strong style="font-size: 1.1em;">${this.escapeHtml(item.plant_name)}</strong></div>
-                                    <div style="font-size: 0.9em; color: #666; margin-top: 0.25rem;">
-                                        🇮🇩 ${this.escapeHtml(item.plant_name_id || item.plant_name)}<br>
-                                        🇬🇧 ${this.escapeHtml(item.plant_name_en || item.plant_name)}
-                                    </div>
+                                    <strong>${this.escapeHtml(item.plant_name)}</strong><br>
+                                    <span style="font-size: 0.9em;">🇮🇩 ${this.escapeHtml(item.plant_name_id || item.plant_name)}</span><br>
+                                    <span style="font-size: 0.9em;">🇬🇧 ${this.escapeHtml(item.plant_name_en || item.plant_name)}</span>
                                 </div>
                             </div>
                             <div class="history-item-message">
-                                <div class="message-label">Keyakinan</div>
+                                <div class="message-label">📊 Keyakinan</div>
                                 <div class="message-content">
-                                    <div style="display: inline-block; background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.1) 100%); padding: 0.5rem 1rem; border-radius: 0.5rem;">
-                                        ${Math.round(item.confidence)}%
-                                    </div>
+                                    <strong>${Math.round(item.confidence)}%</strong>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    ${analysisContent ? `<div style="background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; font-size: 0.95em;">${analysisContent}</div>` : ''}
+                    ${analysisContent}
                     ${recommendationsContent}
                 </div>
             `;
@@ -390,6 +387,46 @@ class PlanktonHistory {
             return placeholder;
         });
         
+        // Preserve tables temporarily and convert to HTML tables
+        const tablePlaceholders = {};
+        let tableIndex = 0;
+        
+        // Match markdown tables
+        text = text.replace(/(\|[^\n]+\|\n)(\|[-:\s|]+\|\n)((?:\|[^\n]+\|\n?)+)/g, function(match, header, separator, body) {
+            const placeholder = `___TABLE_${tableIndex}___`;
+            
+            // Parse header
+            const headerCells = header.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+            
+            // Parse body rows
+            const bodyRows = body.trim().split('\n').map(row => {
+                return row.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+            });
+            
+            // Build HTML table wrapped in scrollable container
+            let tableHtml = '<div class="table-wrapper" style="overflow-x: auto; max-width: 100%; margin: 0.75rem 0;">';
+            tableHtml += '<table style="min-width: 400px;">';
+            tableHtml += '<thead><tr>';
+            headerCells.forEach(cell => {
+                tableHtml += `<th>${cell}</th>`;
+            });
+            tableHtml += '</tr></thead>';
+            tableHtml += '<tbody>';
+            bodyRows.forEach(row => {
+                tableHtml += '<tr>';
+                row.forEach(cell => {
+                    tableHtml += `<td>${cell}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody></table>';
+            tableHtml += '</div>';
+            
+            tablePlaceholders[placeholder] = tableHtml;
+            tableIndex++;
+            return placeholder;
+        });
+        
         // Escape HTML
         let html = text
             .replace(/&/g, '&amp;')
@@ -429,6 +466,11 @@ class PlanktonHistory {
             const cleanCode = code.replace(/```/g, '').trim();
             const styledCode = `<pre style="background: #2d3748; color: #e2e8f0; padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.75rem 0; font-size: 0.85em; line-height: 1.4;"><code>${cleanCode}</code></pre>`;
             html = html.replace(placeholder, styledCode);
+        }
+        
+        // Restore tables
+        for (const [placeholder, table] of Object.entries(tablePlaceholders)) {
+            html = html.replace(placeholder, table);
         }
         
         return html;

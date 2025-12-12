@@ -56,7 +56,8 @@ class PlanktonChat {
         // Add user message to chat
         this.addMessage(message, 'user');
         
-        this.loading.style.display = 'flex';
+        // Show loading in chat
+        this.showLoading('Sedang berpikir...');
         this.sendBtn.disabled = true;
         
         try {
@@ -77,15 +78,26 @@ class PlanktonChat {
             }
             
             const data = await response.json();
+            this.hideLoading();
             this.addMessage(data.ai_response, 'bot');
             
         } catch (error) {
+            this.hideLoading();
             this.addMessage('Maaf, terjadi kesalahan: ' + error.message, 'bot');
         } finally {
-            this.loading.style.display = 'none';
             this.sendBtn.disabled = false;
             this.messageInput.focus();
         }
+    }
+    
+    showLoading(text = 'Sedang berpikir...') {
+        document.getElementById('loadingText').textContent = text;
+        this.loading.style.display = 'flex';
+        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }
+    
+    hideLoading() {
+        this.loading.style.display = 'none';
     }
     
     addMessage(text, sender) {
@@ -98,7 +110,9 @@ class PlanktonChat {
         p.innerHTML = html;
         
         messageDiv.appendChild(p);
-        this.messagesContainer.appendChild(messageDiv);
+        
+        // Insert before loading element
+        this.messagesContainer.insertBefore(messageDiv, this.loading);
         
         // Scroll to bottom
         this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
@@ -116,6 +130,46 @@ class PlanktonChat {
             const placeholder = `___CODE_${codeIndex}___`;
             codePlaceholders[placeholder] = match;
             codeIndex++;
+            return placeholder;
+        });
+        
+        // Preserve tables temporarily and convert to HTML tables
+        const tablePlaceholders = {};
+        let tableIndex = 0;
+        
+        // Match markdown tables
+        text = text.replace(/(\|[^\n]+\|\n)(\|[-:\s|]+\|\n)((?:\|[^\n]+\|\n?)+)/g, function(match, header, separator, body) {
+            const placeholder = `___TABLE_${tableIndex}___`;
+            
+            // Parse header
+            const headerCells = header.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+            
+            // Parse body rows
+            const bodyRows = body.trim().split('\n').map(row => {
+                return row.split('|').filter(cell => cell.trim()).map(cell => cell.trim());
+            });
+            
+            // Build HTML table wrapped in scrollable container
+            let tableHtml = '<div class="table-wrapper" style="overflow-x: auto; max-width: 100%; margin: 0.75rem 0;">';
+            tableHtml += '<table style="min-width: 400px;">';
+            tableHtml += '<thead><tr>';
+            headerCells.forEach(cell => {
+                tableHtml += `<th>${cell}</th>`;
+            });
+            tableHtml += '</tr></thead>';
+            tableHtml += '<tbody>';
+            bodyRows.forEach(row => {
+                tableHtml += '<tr>';
+                row.forEach(cell => {
+                    tableHtml += `<td>${cell}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            tableHtml += '</tbody></table>';
+            tableHtml += '</div>';
+            
+            tablePlaceholders[placeholder] = tableHtml;
+            tableIndex++;
             return placeholder;
         });
         
@@ -150,17 +204,6 @@ class PlanktonChat {
         html = html.replace(/^\d+\)\s(.*?)$/gm, '<li style="margin-left: 20px;">$1</li>');
         html = html.replace(/^(\d+)\.\s(.*?)$/gm, '<li style="margin-left: 20px;">$2</li>');
         
-        // Tables - render as divs with better formatting
-        html = html.replace(/\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|/g, 
-            function(match, col1, col2, col3) {
-                return `<div style="display: flex; gap: 1rem; margin: 0.5rem 0; padding: 0.5rem; background: #f8f9fa; border-left: 3px solid #10b981;">
-                    <div style="flex: 1; font-weight: 500; color: #000;">${col1.trim()}</div>
-                    <div style="flex: 1.5; color: #000;">${col2.trim()}</div>
-                    ${col3 ? `<div style="flex: 1; font-size: 0.9em; color: #000;">${col3.trim()}</div>` : ''}
-                </div>`;
-            }
-        );
-        
         // Inline code
         html = html.replace(/`(.*?)`/g, '<code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.9em;">$1</code>');
         
@@ -169,6 +212,11 @@ class PlanktonChat {
             const cleanCode = code.replace(/```/g, '').trim();
             const styledCode = `<pre style="background: #2d3748; color: #e2e8f0; padding: 1rem; border-radius: 6px; overflow-x: auto; margin: 0.75rem 0; font-size: 0.85em; line-height: 1.4;"><code>${cleanCode}</code></pre>`;
             html = html.replace(placeholder, styledCode);
+        }
+        
+        // Restore tables
+        for (const [placeholder, table] of Object.entries(tablePlaceholders)) {
+            html = html.replace(placeholder, table);
         }
         
         // Emojis at start of lines
@@ -186,8 +234,7 @@ class PlanktonChat {
         const formData = new FormData();
         formData.append('image', file);
         
-        this.loading.style.display = 'flex';
-        this.loading.querySelector('p').textContent = 'Menganalisis tanaman...';
+        this.showLoading('🔍 Menganalisis tanaman...');
         
         try {
             const response = await fetch('/api/plant/analyze', {
@@ -200,18 +247,21 @@ class PlanktonChat {
                 const errorMsg = error.message || error.error || 'Gagal menganalisis tanaman';
                 
                 // Show error in chat
+                this.hideLoading();
                 this.addMessage(`❌ Error: ${errorMsg}`, 'bot');
                 throw new Error(errorMsg);
             }
             
             const data = await response.json();
+            this.hideLoading();
             this.displayAnalysisResult(data);
             
         } catch (error) {
-            this.addMessage(`❌ ${error.message}`, 'bot');
+            this.hideLoading();
+            if (!error.message.includes('Error:')) {
+                this.addMessage(`❌ ${error.message}`, 'bot');
+            }
         } finally {
-            this.loading.style.display = 'none';
-            this.loading.querySelector('p').textContent = 'Sedang berpikir...';
             this.imageInput.value = '';
         }
     }

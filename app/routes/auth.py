@@ -24,7 +24,7 @@ def validate_username(username):
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.chat'))
     
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
@@ -90,7 +90,7 @@ def register():
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.chat'))
     
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
@@ -107,7 +107,7 @@ def login():
             next_page = request.args.get('next')
             if next_page and next_page.startswith('/'):
                 return redirect(next_page)
-            return redirect(url_for('main.index'))
+            return redirect(url_for('main.chat'))
         else:
             flash('Username atau password salah.', 'error')
             return redirect(url_for('auth.login'))
