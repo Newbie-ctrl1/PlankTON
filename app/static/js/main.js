@@ -154,14 +154,20 @@ class PlanktonChat {
             tableHtml += '<table style="min-width: 400px;">';
             tableHtml += '<thead><tr>';
             headerCells.forEach(cell => {
-                tableHtml += `<th>${cell}</th>`;
+                // Restore BR tags and bold inside header cells
+                let cellContent = cell.replace(/___BR_TAG___/g, '<br>');
+                cellContent = cellContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                tableHtml += `<th>${cellContent}</th>`;
             });
             tableHtml += '</tr></thead>';
             tableHtml += '<tbody>';
             bodyRows.forEach(row => {
                 tableHtml += '<tr>';
                 row.forEach(cell => {
-                    tableHtml += `<td>${cell}</td>`;
+                    // Restore BR tags and bold inside body cells
+                    let cellContent = cell.replace(/___BR_TAG___/g, '<br>');
+                    cellContent = cellContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    tableHtml += `<td>${cellContent}</td>`;
                 });
                 tableHtml += '</tr>';
             });
